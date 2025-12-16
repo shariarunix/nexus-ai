@@ -28,11 +28,14 @@
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/your-go-gin-supabase-gemini-project.git
-   cd your-go-gin-supabase-gemini-project
+   [git clone https://github.com/yourusername/your-go-gin-supabase-gemini-project.git
+   cd your-go-gin-supabase-gemini-project](https://github.com/shariarunix/nexus-ai)
+   ```
 
-Initialize Go module (if not already done):Bashgo mod tidy
-Create a .env file in the root directory:env# Server
+Initialize Go module (if not already done): ```go mod tidy```
+Create a .env file in the root directory:
+
+# Env
 PORT=8080
 ENV=development
 
