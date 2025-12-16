@@ -1,0 +1,233 @@
+basePath: /api/v1
+definitions:
+  auth.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      error_description:
+        type: string
+      expires_in:
+        type: integer
+      msg:
+        type: string
+      refresh_token:
+        type: string
+      token_type:
+        type: string
+      user:
+        properties:
+          email:
+            type: string
+          id:
+            type: string
+        type: object
+    type: object
+  handlers.AuthRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handlers.GenerateRequest:
+    properties:
+      chapter:
+        type: integer
+      count:
+        type: integer
+      language:
+        enum:
+        - en
+        - bn
+        type: string
+      topic:
+        type: string
+    required:
+    - chapter
+    - count
+    - language
+    - topic
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API for RAG-based Physics Question Generation and Document Ingestion.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Nexus RAG API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login user via Supabase Auth and return JWT
+      parameters:
+      - description: Auth Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user via Supabase Auth
+      parameters:
+      - description: Auth Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
+  /documents/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads a PDF textbook chapter for ingestion.
+      parameters:
+      - description: PDF File
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Chapter Number
+        in: formData
+        name: chapter
+        required: true
+        type: integer
+      - description: Subject Name
+        in: formData
+        name: subject
+        required: true
+        type: string
+      - description: Language (en/bn)
+        in: formData
+        name: language
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload a PDF document
+      tags:
+      - documents
+  /questions/generate:
+    post:
+      consumes:
+      - application/json
+      description: Generates exam-style questions based on a topic and chapter context.
+      parameters:
+      - description: Generation Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.GenerateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Generate Questions
+      tags:
+      - questions
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
