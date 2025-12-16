@@ -27,12 +27,12 @@
 
 ### Installation
 1. Clone the repository:
-   ```bash
-   [git clone https://github.com/yourusername/your-go-gin-supabase-gemini-project.git
-   cd your-go-gin-supabase-gemini-project](https://github.com/shariarunix/nexus-ai)
-   ```
+```bash
+git clone https://github.com/shariarunix/nexus-ai
+```
+Initialize Go module (if not already done): 
+```go mod tidy```
 
-Initialize Go module (if not already done): ```go mod tidy```
 Create a .env file in the root directory:
 
 # Env
@@ -49,4 +49,4 @@ SUPABASE_JWT_SECRET=your-jwt-secret
 DATABASE_URL=postgres://postgres.your-project:[YOUR-PASSWORD]@db.your-project.supabase.co:5432/postgres?sslmode=require
 
 # Gemini
-GEMINI_API_KEY=your-gemini-api-keyImportant Security Notes:
+GEMINI_API_KEY=your-gemini-api-key
