@@ -49,23 +49,25 @@ func (r *PostgresVectorRepo) SearchSimilar(ctx context.Context, embedding []floa
 	args := []interface{}{pgvector.NewVector(embedding)}
 	argPos := 2 // Start from $2 since $1 is the embedding vector
 	
-	// Apply filters
-	if chapter, ok := filter["chapter"].(int); ok {
-		query += fmt.Sprintf(" AND chapter = $%d", argPos)
-		args = append(args, chapter)
-		argPos++
-	}
-	
-	if language, ok := filter["language"].(string); ok {
-		query += fmt.Sprintf(" AND language = $%d", argPos)
-		args = append(args, language)
-		argPos++
-	}
-	
-	if subject, ok := filter["subject"].(string); ok {
-		query += fmt.Sprintf(" AND subject = $%d", argPos)
-		args = append(args, subject)
-		argPos++
+	// Apply filters if provided
+	if filter != nil {
+		if chapter, ok := filter["chapter"].(int); ok {
+			query += fmt.Sprintf(" AND chapter = $%d", argPos)
+			args = append(args, chapter)
+			argPos++
+		}
+		
+		if language, ok := filter["language"].(string); ok {
+			query += fmt.Sprintf(" AND language = $%d", argPos)
+			args = append(args, language)
+			argPos++
+		}
+		
+		if subject, ok := filter["subject"].(string); ok {
+			query += fmt.Sprintf(" AND subject = $%d", argPos)
+			args = append(args, subject)
+			argPos++
+		}
 	}
 	
 	query += fmt.Sprintf(" ORDER BY embedding <=> $1 LIMIT $%d", argPos)
