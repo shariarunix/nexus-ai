@@ -21,11 +21,8 @@ type Config struct {
 
 // Load reads configuration from environment variables
 func Load() (*Config, error) {
-	// Load .env file if it exists
-	err := godotenv.Load("../../.env")
-	if err != nil {
-		return nil, err
-	}
+	// Load .env file if it exists (optional)
+	_ = godotenv.Load("../../.env")
 
 	cfg := &Config{
 		Environment:            getEnv("ENV", "development"),
