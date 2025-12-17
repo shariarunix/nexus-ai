@@ -56,19 +56,43 @@ func TestSearchSimilar(t *testing.T) {
 	embedding := []float32{0.1, 0.2, 0.3}
 	limit := 5
 
-	// Expected rows
-	rows := sqlmock.NewRows([]string{"id", "subject", "chapter", "content", "language", "page", "created_at"}).
-		AddRow(uuid.New(), "Physics", 1, "Content 1", "en", 10, time.Now()).
-		AddRow(uuid.New(), "Physics", 1, "Content 2", "en", 11, time.Now())
+	t.Run("Search without filters", func(t *testing.T) {
+		rows := sqlmock.NewRows([]string{"id", "subject", "chapter", "content", "language", "page", "created_at"}).
+			AddRow(uuid.New(), "Physics", 1, "Content 1", "en", 10, time.Now()).
+			AddRow(uuid.New(), "Physics", 1, "Content 2", "en", 11, time.Now())
 
-	query := regexp.QuoteMeta(`SELECT id, subject, chapter, content, language, page, created_at FROM embeddings ORDER BY embedding <=> $1 LIMIT $2`)
+		query := regexp.QuoteMeta(`SELECT id, subject, chapter, content, language, page, created_at FROM embeddings WHERE 1=1 ORDER BY embedding <=> $1 LIMIT $2`)
 
-	mock.ExpectQuery(query).
-		WithArgs(pgvector.NewVector(embedding), limit).
-		WillReturnRows(rows)
+		mock.ExpectQuery(query).
+			WithArgs(pgvector.NewVector(embedding), limit).
+			WillReturnRows(rows)
 
-	results, err := repo.SearchSimilar(context.Background(), embedding, limit, nil)
-	assert.NoError(t, err)
-	assert.Len(t, results, 2)
-	assert.NoError(t, mock.ExpectationsWereMet())
+		results, err := repo.SearchSimilar(context.Background(), embedding, limit, nil)
+		assert.NoError(t, err)
+		assert.Len(t, results, 2)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("Search with chapter and language filters", func(t *testing.T) {
+		rows := sqlmock.NewRows([]string{"id", "subject", "chapter", "content", "language", "page", "created_at"}).
+			AddRow(uuid.New(), "Physics", 10, "Content 1", "bn", 10, time.Now())
+
+		filter := map[string]interface{}{
+			"chapter":  10,
+			"language": "bn",
+		}
+
+		query := regexp.QuoteMeta(`SELECT id, subject, chapter, content, language, page, created_at FROM embeddings WHERE 1=1 AND chapter = $2 AND language = $3 ORDER BY embedding <=> $1 LIMIT $4`)
+
+		mock.ExpectQuery(query).
+			WithArgs(pgvector.NewVector(embedding), 10, "bn", limit).
+			WillReturnRows(rows)
+
+		results, err := repo.SearchSimilar(context.Background(), embedding, limit, filter)
+		assert.NoError(t, err)
+		assert.Len(t, results, 1)
+		assert.Equal(t, 10, results[0].Chapter)
+		assert.Equal(t, "bn", results[0].Language)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
 }

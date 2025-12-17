@@ -52,12 +52,11 @@ func main() {
 	// 2. Initialize DB
 	db, err := sqlx.Connect("postgres", cfg.DatabaseURL)
 	if err != nil {
-		log.Printf("Warning: Failed to connect to DB: %v (Proceeding might fail if DB needed)", err)
-	} else {
-		db.SetMaxOpenConns(25)
-		db.SetMaxIdleConns(25)
-		db.SetConnMaxLifetime(5 * time.Minute)
+		log.Fatalf("Failed to connect to DB: %v", err)
 	}
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(25)
+	db.SetConnMaxLifetime(5 * time.Minute)
 
 	// 3. Initialize AI Clients
 	ctx := context.Background()
